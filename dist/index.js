@@ -19,7 +19,7 @@ const throttle = (func, limit) => {
     }
 }
 
-let orig = document.addEventListener;
+let orig = document.addEventListener.bind(document);
 document.addEventListener = (t, h, o) => {
     console.log("Called addEventListener override")
     if (t === 'mousemove')
