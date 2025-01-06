@@ -1,0 +1,48 @@
+<html lang="en">
+
+<head>
+    <title>Modal Model</title>
+    <meta charset="utf-8">
+
+    <script src="main.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .keypresses {
+            display: flex;
+            flex-direction: row;
+            gap: 1em;
+        }
+
+        .keypresses div {
+            background-color: aliceblue;
+            border-radius: 15%;
+            padding: 0.7em 1em;
+            font-size: 2em;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rep {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script src="index.js"></script>
+</body>
+
+</html>
