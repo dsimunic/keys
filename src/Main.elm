@@ -2,23 +2,29 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser exposing (Document)
 import Browser.Events
-import Html exposing (div, text)
+import Html exposing (div, span, text)
 import Html.Attributes exposing (class)
-import Json.Decode exposing (Decoder, andThen, fail, field, string, succeed)
+import Json.Decode exposing (Decoder, andThen, fail, field, float, map2, string, succeed)
 
 
 type alias Model =
     { log : List String
+    , mouse : ( Float, Float )
+    , mouseDuplicates : Int
     }
 
 
 type Msg
     = Keypress String
+    | Mousemove ( Float, Float )
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { log = [] }
+    ( { log = []
+      , mouse = ( 0, 0 )
+      , mouseDuplicates = 0
+      }
     , Cmd.none
     )
 
@@ -28,6 +34,15 @@ update msg model =
     case msg of
         Keypress s ->
             ( { model | log = s :: model.log }
+            , Cmd.none
+            )
+
+        Mousemove p ->
+            ( if model.mouse == p then
+                { model | mouseDuplicates = model.mouseDuplicates + 1 }
+
+              else
+                { model | mouse = p, mouseDuplicates = 0 }
             , Cmd.none
             )
 
@@ -50,6 +65,19 @@ view model =
                         ( [], "" )
                         (model.log |> List.take 10 |> List.reverse)
             )
+        , div []
+            [ let
+                ( x, y ) =
+                    model.mouse
+              in
+              text (String.fromFloat x ++ "," ++ String.fromFloat y)
+            , if model.mouseDuplicates > 0 then
+                span [ class "rep" ]
+                    [ text (" " ++ String.fromInt model.mouseDuplicates ++ " duplicate(s)") ]
+
+              else
+                text ""
+            ]
         ]
     }
 
@@ -58,6 +86,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown (Json.Decode.map Keypress decodeKey)
+        , Browser.Events.onMouseMove (Json.Decode.map Mousemove decodeMouse)
         ]
 
 
@@ -72,6 +101,13 @@ decodeKey =
                 else
                     succeed key
             )
+
+
+decodeMouse : Decoder ( Float, Float )
+decodeMouse =
+    map2 Tuple.pair
+        (field "screenX" float)
+        (field "screenY" float)
 
 
 

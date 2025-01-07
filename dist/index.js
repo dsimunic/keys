@@ -19,13 +19,29 @@ const throttle = (func, limit) => {
     }
 }
 
-let orig = document.addEventListener;
+let map = new WeakMap();
+let orig = document.addEventListener.bind(document);
 document.addEventListener = (t, h, o) => {
     console.log("Called addEventListener override")
-    if (t === 'mousemove')
-        return orig(t, throttle(h, 32), o)
+    if (t === 'mousemove') {
+        let throttled = throttle(h, 32);
+        map.set(h, throttled);
+        return orig(t, throttled, o)
+    }
     else
         return orig(t, h, o)
+}
+
+let orig2 = document.removeEventListener.bind(document);
+document.removeEventListener = (t, h, o) => {
+    console.log("Called removeEventListener override")
+    let h2 = map.get(h);
+    if (h2) {
+        map.delete(h);
+        return orig2(t, h2, o);
+    }
+    else
+        return orig2(t, h, o);
 }
 
 const elm = Elm.Main.init({
